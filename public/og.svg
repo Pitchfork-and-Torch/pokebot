@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="PokeBot Field Guide">
+  <rect width="1200" height="630" fill="#14110e"/>
+  <rect x="340" y="70" width="520" height="490" rx="48" fill="#E7D7B6" stroke="#0B0F0C" stroke-width="8"/>
+  <rect x="390" y="120" width="420" height="280" rx="18" fill="#3A2F24"/>
+  <rect x="410" y="140" width="380" height="240" fill="#0B0F0C"/>
+  <text x="600" y="230" text-anchor="middle" fill="#C8F0A8" font-family="IBM Plex Mono, monospace" font-size="42" font-weight="700">POKEBOT</text>
+  <text x="600" y="270" text-anchor="middle" fill="#7AA86A" font-family="IBM Plex Mono, monospace" font-size="16" letter-spacing="4">FIELD GUIDE SYSTEM v2.26</text>
+  <text x="600" y="330" text-anchor="middle" fill="#C8F0A8" font-family="IBM Plex Mono, monospace" font-size="14">SEEN 80  CAUGHT 9  ACTIVE 6/6</text>
+  <text x="600" y="600" text-anchor="middle" fill="#E7D7B6" font-family="IBM Plex Mono, monospace" font-size="18">Index every agent. Run a tight team.</text>
+</svg>
