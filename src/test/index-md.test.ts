@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { exportIndex, importIndex } from "../lib/indexMarkdown";
 import { blankSave } from "../lib/storage";
+import template from "../../pack/templates/INDEX.md?raw";
 
 describe("INDEX.md", () => {
   it("round-trips trainer, stubs, and active six", () => {
@@ -110,5 +111,22 @@ describe("INDEX.md", () => {
     expect(back.caught.find((c) => c.id === "am-shift")?.kind).toBe("clock");
     expect(back.activeIds.slice(0, 2)).toEqual(["flick", "am-shift"]);
     expect(back.boxedIds).toContain("hygiene");
+  });
+
+  it("round-trips the Released list", () => {
+    const save = blankSave();
+    save.releasedIds = ["w1a2b3c4", "old-costume"];
+    const md = exportIndex(save);
+    expect(md).toMatch(/## Released\n\n- w1a2b3c4\n- old-costume\n/);
+    const back = importIndex(md, blankSave());
+    expect(back.releasedIds).toEqual(["w1a2b3c4", "old-costume"]);
+    expect(exportIndex(back)).toMatch(/- old-costume/);
+  });
+
+  it("imports the empty pack template without inventing specimens or released ids", () => {
+    const back = importIndex(template, blankSave());
+    expect(back.caught).toEqual([]);
+    expect(back.releasedIds).toEqual([]);
+    expect(back.activeIds).toEqual([null, null, null, null, null, null]);
   });
 });

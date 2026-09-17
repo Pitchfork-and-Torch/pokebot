@@ -106,7 +106,9 @@ function sectionSpecs(md: string, heading: string): Specimen[] {
   return out;
 }
 
-export function importIndex(markdown: string, base: SaveFile): SaveFile {
+export function importIndex(raw: string, base: SaveFile): SaveFile {
+  // pack/templates/INDEX.md ends with a schema comment whose "- id:" lines would otherwise read as released ids.
+  const markdown = raw.replace(/<!--[\s\S]*?-->/g, "");
   const trainer = markdown.match(/^Trainer:\s*(.+)$/m)?.[1]?.trim() || base.trainerName;
   const unnamed = Number(markdown.match(/^Declared unnamed:\s*(\d+)/m)?.[1] ?? base.declaredExisting ?? 0);
   const activeSpecs = sectionSpecs(markdown, "Active");
@@ -121,11 +123,10 @@ export function importIndex(markdown: string, base: SaveFile): SaveFile {
   });
   const activeSet = new Set(activeSpecs.map((s) => s.id));
   const boxedIds = [...new Set([...boxedSpecs, ...stubSpecs].map((s) => s.id))].filter((id) => !activeSet.has(id));
-  const released = [...markdown.matchAll(/^## Released[\s\S]*?(?=\n## |$)/g)];
+  const relBody = markdown.match(/(?:^|\n)## Released\s*([\s\S]*?)(?=\n## |$)/)?.[1] ?? "";
   const releasedIds: string[] = [];
-  const relBody = released[0]?.[0] ?? "";
   for (const m of relBody.matchAll(/^- (\S+)/gm)) {
-    if (m[1] && m[1] !== "_none_") releasedIds.push(m[1]);
+    if (m[1] && m[1] !== "_none_" && !releasedIds.includes(m[1])) releasedIds.push(m[1]);
   }
   return {
     ...base,
