@@ -108,8 +108,9 @@ export function addNameStubs(save: SaveFile, names: string[], declaredTotal?: nu
   for (const name of unique) {
     if (findByName(next.caught, name)) continue;
     const stub = makeStub(name);
+    // Cap is hard. Remaining declaredExisting must not keep minting stubs past 50.
     const used = next.caught.length + (next.declaredExisting ?? 0);
-    if (used >= CAP_MAX && (next.declaredExisting ?? 0) <= 0) break;
+    if (used >= CAP_MAX) break;
     next.caught.push(stub);
     if (!next.boxedIds.includes(stub.id)) next.boxedIds.push(stub.id);
     if (!next.seenIds.includes(stub.id)) next.seenIds.push(stub.id);

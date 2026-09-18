@@ -77,4 +77,29 @@ describe("roster dump", () => {
     };
     expect(cheapestKill(save.caught)?.name).toBe("Costume");
   });
+
+  it("stops name stubs once the bot cap is full even with declaredExisting left", () => {
+    const save = blankSave();
+    save.declaredExisting = 3;
+    for (let i = 0; i < 50; i++) {
+      save.caught.push({
+        id: "bot-" + i,
+        name: "Bot" + i,
+        title: "Bot",
+        types: ["ops"],
+        job: "job",
+        never_list: ["x"],
+        tools: [],
+        rarity: "common",
+        risk: "low",
+        origin: "wild",
+        flavor: "f",
+        kind: "grok-bot",
+      });
+    }
+    const next = addNameStubs(save, ["Alpha", "Beta", "Gamma", "Delta"]);
+    expect(next.caught.some((c) => c.origin === "stub")).toBe(false);
+    expect(next.caught).toHaveLength(50);
+  });
+
 });
