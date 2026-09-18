@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ACTIVE_MAX, CAP_HARD, CAP_MAX, CAP_WARN, activeCount, activeRefs, assignSlot, canCatch, capCount, capState, emptyActive } from "../lib/roster";
+import { ACTIVE_MAX, CAP_HARD, CAP_MAX, CAP_WARN, activeCount, activeRefs, assignSlot, canCatch, capCount, capState, emptyActive, releaseSpecimen } from "../lib/roster";
 import { typeHoles } from "../lib/pressure";
 import { blankSave } from "../lib/storage";
 
@@ -87,5 +87,53 @@ describe("roster", () => {
     ];
     save.activeIds[0] = "flick";
     expect(typeHoles(save)).toContain("sense");
+  });
+
+  it("release clears shiny and legendary marks for that id", () => {
+    const caught = [
+      {
+        id: "pulse",
+        name: "Pulse",
+        title: "Sense",
+        types: ["sense"] as ["sense"],
+        job: "account health",
+        never_list: ["Never contact a customer"],
+        tools: [],
+        rarity: "legendary" as const,
+        risk: "low" as const,
+        origin: "wild" as const,
+        flavor: "x",
+      },
+      {
+        id: "flick",
+        name: "Flick",
+        title: "Scout",
+        types: ["scout"] as ["scout"],
+        job: "research",
+        never_list: [],
+        tools: [],
+        rarity: "rare" as const,
+        risk: "low" as const,
+        origin: "spawned" as const,
+        flavor: "x",
+      },
+    ];
+    let active = emptyActive();
+    active[0] = "pulse";
+    const next = releaseSpecimen(
+      caught,
+      active,
+      ["flick"],
+      [],
+      "pulse",
+      ["pulse", "flick"],
+      { pulse: "2026-08-08", flick: "2026-09-01" },
+    );
+    expect(next.caught.map((s) => s.id)).toEqual(["flick"]);
+    expect(next.activeIds[0]).toBeNull();
+    expect(next.releasedIds).toContain("pulse");
+    expect(next.shinyIds).toEqual(["flick"]);
+    expect(next.legendaryStamps).toEqual({ flick: "2026-09-01" });
+    expect(next.legendaryStamps.pulse).toBeUndefined();
   });
 });

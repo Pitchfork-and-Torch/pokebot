@@ -157,7 +157,15 @@ export function SaveProvider({ children }: { children: ReactNode }) {
       release: (id) => {
         setSave((prev) => ({
           ...prev,
-          ...releaseSpecimen(prev.caught, prev.activeIds, prev.boxedIds, prev.releasedIds, id),
+          ...releaseSpecimen(
+            prev.caught,
+            prev.activeIds,
+            prev.boxedIds,
+            prev.releasedIds,
+            id,
+            prev.shinyIds,
+            prev.legendaryStamps,
+          ),
         }));
       },
       addGym: (record) => {

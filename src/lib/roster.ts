@@ -103,17 +103,27 @@ export function releaseSpecimen(
   boxedIds: string[],
   releasedIds: string[],
   id: string,
+  shinyIds: string[] = [],
+  legendaryStamps: Record<string, string> = {},
 ): {
   caught: Specimen[];
   activeIds: SaveFile["activeIds"];
   boxedIds: string[];
   releasedIds: string[];
+  shinyIds: string[];
+  legendaryStamps: Record<string, string>;
 } {
+  // Drop shiny / legendary marks with the specimen. A later Catch of the same
+  // id must not inherit a ghost Legendary stamp or SHINY flag from a release.
+  const nextStamps = { ...legendaryStamps };
+  delete nextStamps[id];
   return {
     caught: caught.filter((s) => s.id !== id),
     activeIds: activeIds.map((slot) => (slot === id ? null : slot)) as SaveFile["activeIds"],
     boxedIds: boxedIds.filter((b) => b !== id),
     releasedIds: releasedIds.includes(id) ? releasedIds : [...releasedIds, id],
+    shinyIds: shinyIds.filter((s) => s !== id),
+    legendaryStamps: nextStamps,
   };
 }
 
