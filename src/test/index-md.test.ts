@@ -168,6 +168,52 @@ describe("INDEX.md", () => {
     expect(back.activeIds).toEqual([null, "flick", null, "am-shift", null, null]);
   });
 
+  it("drops Released ids that still appear in Active/Boxed/Stubs", () => {
+    const md = [
+      "# INDEX",
+      "",
+      "Trainer: Ada",
+      "Cap used: 1 / 50",
+      "Attention: 1 / 6",
+      "Active: 1 / 6",
+      "Declared unnamed: 0",
+      "",
+      "## Active",
+      "",
+      "### Flick",
+      "- id: flick",
+      "- title: Scout",
+      "- types: scout",
+      "- job: research",
+      "- never_list: Never contact a subject",
+      "- tools: web search",
+      "- rarity: rare",
+      "- risk: low",
+      "- origin: spawned",
+      "- kind: grok-bot",
+      "- flavor: Clear job",
+      "",
+      "## Boxed",
+      "",
+      "_none_",
+      "",
+      "## Stubs",
+      "",
+      "_none_",
+      "",
+      "## Released",
+      "",
+      "- flick",
+      "- truly-gone",
+      "",
+    ].join("\n");
+    const back = importIndex(md, blankSave());
+    expect(back.caught.map((c) => c.id)).toEqual(["flick"]);
+    expect(back.activeIds[0]).toBe("flick");
+    expect(back.releasedIds).toEqual(["truly-gone"]);
+    expect(back.releasedIds).not.toContain("flick");
+  });
+
   it("prunes shiny and legendary stamps for ids absent from the INDEX", () => {
     const save = blankSave();
     save.caught = [

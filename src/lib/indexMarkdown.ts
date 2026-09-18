@@ -158,13 +158,16 @@ export function importIndex(raw: string, base: SaveFile): SaveFile {
   const activeSet = new Set(activeSpecs.map((s) => s.id));
   const boxedIds = [...new Set([...boxedSpecs, ...stubSpecs].map((s) => s.id))].filter((id) => !activeSet.has(id));
   const relBody = markdown.match(/(?:^|\n)## Released\s*([\s\S]*?)(?=\n## |$)/)?.[1] ?? "";
-  const releasedIds: string[] = [];
-  for (const m of relBody.matchAll(/^- (\S+)/gm)) {
-    if (m[1] && m[1] !== "_none_" && !releasedIds.includes(m[1])) releasedIds.push(m[1]);
-  }
   // INDEX.md does not carry shiny / legendary marks. Drop stamps for ids that
   // are no longer in the imported roster so a later Catch cannot inherit a ghost.
   const kept = new Set(caught.map((s) => s.id));
+  const releasedIds: string[] = [];
+  for (const m of relBody.matchAll(/^- (\S+)/gm)) {
+    // Present specimens win. An id still in Active/Boxed/Stubs is not released.
+    if (m[1] && m[1] !== "_none_" && !kept.has(m[1]) && !releasedIds.includes(m[1])) {
+      releasedIds.push(m[1]);
+    }
+  }
   const shinyIds = (base.shinyIds ?? []).filter((id) => kept.has(id));
   const legendaryStamps: Record<string, string> = {};
   for (const [id, stamp] of Object.entries(base.legendaryStamps ?? {})) {
