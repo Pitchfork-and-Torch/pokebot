@@ -101,6 +101,12 @@ export function ingestRows(save: SaveFile, rows: ImportRow[]): {
   return { save: next, added, upgraded, blocked };
 }
 
+
+/** After upgradeOrAdd, stub ids are preserved; pin/Active must use that id. */
+export function caughtIdFor(save: SaveFile, result: Pick<IdentifyResult, "id" | "name">): string {
+  return save.caught.find((s) => s.id === result.id || s.name === result.name)?.id ?? result.id;
+}
+
 export function addNameStubs(save: SaveFile, names: string[], declaredTotal?: number): SaveFile {
   const unique = names.map((n) => n.trim()).filter(Boolean);
   let next = { ...save, caught: [...save.caught], boxedIds: [...save.boxedIds], seenIds: [...save.seenIds] };

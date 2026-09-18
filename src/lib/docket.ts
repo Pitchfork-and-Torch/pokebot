@@ -2,7 +2,7 @@ import { LANE, LANE_COUNT, LANE_DONE, LANE_MATCH_INDEX } from "../data/lane";
 import type { ActiveRef, DocketItem, SaveFile, Verdict } from "../data/types";
 import { classify } from "./classify";
 import { importIndex } from "./indexMarkdown";
-import { upgradeOrAdd } from "./ingest";
+import { caughtIdFor, upgradeOrAdd } from "./ingest";
 import { assignSlot } from "./roster";
 
 export function activeRefsFrom(save: SaveFile): ActiveRef[] {
@@ -99,7 +99,7 @@ export function stampHearing(
     const step = upgradeOrAdd(next, item.result, "wild");
     if (step.blocked) return { save, lecture, blocked: step.blocked };
     next = step.save;
-    const specId = next.caught.find((s) => s.id === item.result.id || s.name === item.result.name)?.id ?? item.result.id;
+    const specId = caughtIdFor(next, item.result);
     const shouldPin = opts.pin ?? item.result.slot_advice === "pin";
     if (shouldPin) {
       next = pinFirstHole(next, specId);

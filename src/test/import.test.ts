@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { DEMO_ROSTER_DUMP } from "../data/demoRoster";
-import { addNameStubs, cheapestKill, ingestRows, makeStub } from "../lib/ingest";
+import { addNameStubs, caughtIdFor, cheapestKill, ingestRows, makeStub, upgradeOrAdd } from "../lib/ingest";
 import { identifyDump, killMessage, parseRosterDump, rankKillList } from "../lib/rosterDump";
 import { capUsed } from "../lib/pressure";
 import { accountUsed } from "../lib/roster";
@@ -102,3 +102,15 @@ describe("roster dump", () => {
     expect(next.caught.some((c) => c.name === "Alpha" && c.origin === "stub")).toBe(true);
   });
 });
+
+  it("pins the preserved stub id after upgrade, not the classify hash id", () => {
+    const save = addNameStubs(blankSave(), ["Pulse"], 1);
+    const stubId = save.caught[0]!.id;
+    expect(stubId).toMatch(/^stub-/);
+    const rows = identifyDump("Pulse\nOwn weekly account health. Never contact a customer.");
+    const result = rows[0]!.result;
+    expect(result.id).not.toBe(stubId);
+    const step = upgradeOrAdd(save, result, "wild");
+    expect(caughtIdFor(step.save, result)).toBe(stubId);
+    expect(step.save.caught.some((s) => s.id === result.id)).toBe(false);
+  });

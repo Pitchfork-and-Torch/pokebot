@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { DocketItem, EncounterLog, GymRecord, IdentifyResult, MondayReport, SaveFile, Specimen } from "../data/types";
 import { applyIndexFile, enqueue, ensureLane, markLaneDone, startLane, stampHearing } from "../lib/docket";
-import { addNameStubs, cheapestKill, ingestRows, upgradeOrAdd } from "../lib/ingest";
+import { addNameStubs, caughtIdFor, cheapestKill, ingestRows, upgradeOrAdd } from "../lib/ingest";
 import type { ImportRow } from "../lib/rosterDump";
 import { assignSlot, boxSpecimen, clearSlot, releaseSpecimen, stats } from "../lib/roster";
 import { loadSave, persistSave, resetSave } from "../lib/storage";
@@ -70,9 +70,10 @@ export function SaveProvider({ children }: { children: ReactNode }) {
         if (opts?.pin) {
           const hole = next.activeIds.findIndex((id) => id === null);
           if (hole >= 0) {
-            const slotted = assignSlot(next.activeIds, next.boxedIds, hole, result.id);
+            const specId = caughtIdFor(next, result);
+            const slotted = assignSlot(next.activeIds, next.boxedIds, hole, specId);
             next = { ...next, ...slotted };
-            pinned = true;
+            pinned = next.activeIds.includes(specId);
           }
         }
         setSave({
