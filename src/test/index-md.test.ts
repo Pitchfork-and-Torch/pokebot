@@ -129,4 +129,42 @@ describe("INDEX.md", () => {
     expect(back.releasedIds).toEqual([]);
     expect(back.activeIds).toEqual([null, null, null, null, null, null]);
   });
+
+  it("preserves Active slot holes on export -> import", () => {
+    const save = blankSave();
+    save.caught = [
+      {
+        id: "flick",
+        name: "Flick",
+        title: "Source Scout",
+        types: ["scout"],
+        job: "Research people",
+        never_list: ["Never contact a subject"],
+        tools: ["web search"],
+        rarity: "rare",
+        risk: "low",
+        origin: "spawned",
+        flavor: "Clear job",
+      },
+      {
+        id: "am-shift",
+        name: "AM Shift",
+        title: "Clock",
+        types: ["ops"],
+        job: "Monday gym reminder",
+        never_list: ["Never install a PC task"],
+        tools: [],
+        rarity: "common",
+        risk: "mid",
+        origin: "wild",
+        flavor: "A clock",
+        kind: "clock",
+      },
+    ];
+    save.activeIds = [null, "flick", null, "am-shift", null, null];
+    const md = exportIndex(save);
+    expect(md).toMatch(/## Active\n\n_empty_/);
+    const back = importIndex(md, blankSave());
+    expect(back.activeIds).toEqual([null, "flick", null, "am-shift", null, null]);
+  });
 });

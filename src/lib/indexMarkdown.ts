@@ -29,9 +29,12 @@ export function looksLikeIndex(text: string): boolean {
 }
 
 export function exportIndex(save: SaveFile): string {
-  const active = save.activeIds
-    .map((id) => (id ? save.caught.find((s) => s.id === id) : undefined))
-    .filter((s): s is Specimen => Boolean(s));
+  const activeBlocks = save.activeIds.map((id) => {
+    if (!id) return "_empty_\n\n";
+    const spec = save.caught.find((s) => s.id === id);
+    return spec ? specBlock(spec) : "_empty_\n\n";
+  });
+  const activeFilled = save.activeIds.some(Boolean);
   const boxed = save.caught.filter((s) => save.boxedIds.includes(s.id) && !save.activeIds.includes(s.id));
   const stubs = save.caught.filter((s) => s.origin === "stub");
   const used = accountUsed(save.caught, save.declaredExisting ?? 0);
@@ -47,7 +50,7 @@ export function exportIndex(save: SaveFile): string {
     "",
     "## Active",
     "",
-    active.length ? active.map(specBlock).join("") : "_none_\n",
+    activeFilled ? activeBlocks.join("") : "_none_\n",
     "## Boxed",
     "",
     boxed.length ? boxed.map(specBlock).join("") : "_none_\n",
@@ -106,20 +109,51 @@ function sectionSpecs(md: string, heading: string): Specimen[] {
   return out;
 }
 
+/** Active six with holes. `_empty_` keeps slot index; legacy files without it pack from slot 0. */
+function sectionActiveSlots(md: string): (Specimen | null)[] {
+  const re = /## Active\s*([\s\S]*?)(?=\n## |$)/;
+  const body = md.match(re)?.[1] ?? "";
+  const slots = emptyActive();
+  if (!body.trim() || /^\s*_none_\s*$/m.test(body.trim())) return slots;
+
+  if (!body.includes("_empty_")) {
+    const specs = sectionSpecs(md, "Active");
+    specs.slice(0, 6).forEach((s, i) => {
+      slots[i] = s;
+    });
+    return slots;
+  }
+
+  let i = 0;
+  const tokenRe = /_empty_|###\s+[\s\S]*?(?=\n_empty_|\n### |$)/g;
+  for (const m of body.matchAll(tokenRe)) {
+    if (i >= 6) break;
+    const tok = m[0];
+    if (tok.startsWith("_empty_")) {
+      slots[i++] = null;
+      continue;
+    }
+    const spec = parseSpec(tok);
+    slots[i++] = spec;
+  }
+  return slots;
+}
+
 export function importIndex(raw: string, base: SaveFile): SaveFile {
   // pack/templates/INDEX.md ends with a schema comment whose "- id:" lines would otherwise read as released ids.
   const markdown = raw.replace(/<!--[\s\S]*?-->/g, "");
   const trainer = markdown.match(/^Trainer:\s*(.+)$/m)?.[1]?.trim() || base.trainerName;
   const unnamed = Number(markdown.match(/^Declared unnamed:\s*(\d+)/m)?.[1] ?? base.declaredExisting ?? 0);
-  const activeSpecs = sectionSpecs(markdown, "Active");
+  const activeSlots = sectionActiveSlots(markdown);
+  const activeSpecs = activeSlots.filter((s): s is Specimen => Boolean(s));
   const boxedSpecs = sectionSpecs(markdown, "Boxed");
   const stubSpecs = sectionSpecs(markdown, "Stubs");
   const byId = new Map<string, Specimen>();
   for (const s of [...boxedSpecs, ...stubSpecs, ...activeSpecs]) byId.set(s.id, s);
   const caught = [...byId.values()];
   const activeIds = emptyActive();
-  activeSpecs.slice(0, 6).forEach((s, i) => {
-    activeIds[i] = s.id;
+  activeSlots.forEach((s, i) => {
+    activeIds[i] = s ? s.id : null;
   });
   const activeSet = new Set(activeSpecs.map((s) => s.id));
   const boxedIds = [...new Set([...boxedSpecs, ...stubSpecs].map((s) => s.id))].filter((id) => !activeSet.has(id));
