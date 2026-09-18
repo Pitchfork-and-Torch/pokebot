@@ -162,6 +162,14 @@ export function importIndex(raw: string, base: SaveFile): SaveFile {
   for (const m of relBody.matchAll(/^- (\S+)/gm)) {
     if (m[1] && m[1] !== "_none_" && !releasedIds.includes(m[1])) releasedIds.push(m[1]);
   }
+  // INDEX.md does not carry shiny / legendary marks. Drop stamps for ids that
+  // are no longer in the imported roster so a later Catch cannot inherit a ghost.
+  const kept = new Set(caught.map((s) => s.id));
+  const shinyIds = (base.shinyIds ?? []).filter((id) => kept.has(id));
+  const legendaryStamps: Record<string, string> = {};
+  for (const [id, stamp] of Object.entries(base.legendaryStamps ?? {})) {
+    if (kept.has(id)) legendaryStamps[id] = stamp;
+  }
   return {
     ...base,
     trainerName: trainer,
@@ -171,5 +179,7 @@ export function importIndex(raw: string, base: SaveFile): SaveFile {
     boxedIds,
     activeIds,
     releasedIds,
+    shinyIds,
+    legendaryStamps,
   };
 }

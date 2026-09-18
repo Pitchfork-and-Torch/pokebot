@@ -167,4 +167,35 @@ describe("INDEX.md", () => {
     const back = importIndex(md, blankSave());
     expect(back.activeIds).toEqual([null, "flick", null, "am-shift", null, null]);
   });
+
+  it("prunes shiny and legendary stamps for ids absent from the INDEX", () => {
+    const save = blankSave();
+    save.caught = [
+      {
+        id: "flick",
+        name: "Flick",
+        title: "Scout",
+        types: ["research", "ops"],
+        job: "Research people",
+        never_list: ["Never contact a subject"],
+        tools: ["web search"],
+        rarity: "rare",
+        risk: "low",
+        origin: "spawned",
+        flavor: "Clear job",
+      },
+    ];
+    save.activeIds = ["flick", null, null, null, null, null];
+    save.shinyIds = ["flick", "ghost-gone"];
+    save.legendaryStamps = { flick: "2026-01-01", "ghost-gone": "2026-02-02" };
+    const md = exportIndex(save);
+    const back = importIndex(md, {
+      ...blankSave(),
+      shinyIds: ["flick", "ghost-gone"],
+      legendaryStamps: { flick: "2026-01-01", "ghost-gone": "2026-02-02" },
+    });
+    expect(back.shinyIds).toEqual(["flick"]);
+    expect(back.legendaryStamps).toEqual({ flick: "2026-01-01" });
+  });
+
 });
