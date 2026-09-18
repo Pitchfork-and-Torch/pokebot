@@ -3,6 +3,7 @@ import { DEMO_ROSTER_DUMP } from "../data/demoRoster";
 import { addNameStubs, cheapestKill, ingestRows, makeStub } from "../lib/ingest";
 import { identifyDump, killMessage, parseRosterDump, rankKillList } from "../lib/rosterDump";
 import { capUsed } from "../lib/pressure";
+import { accountUsed } from "../lib/roster";
 import { blankSave } from "../lib/storage";
 
 describe("roster dump", () => {
@@ -76,5 +77,28 @@ describe("roster dump", () => {
       ],
     };
     expect(cheapestKill(save.caught)?.name).toBe("Costume");
+  });
+
+  it("adds name stubs when the box is full of non-bots", () => {
+    const save = blankSave();
+    for (let i = 0; i < 50; i++) {
+      save.caught.push({
+        id: "skill-" + i,
+        name: "Skill" + i,
+        title: "Skill",
+        types: ["ops"],
+        job: "file chores",
+        never_list: [],
+        tools: [],
+        rarity: "common",
+        risk: "low",
+        origin: "wild",
+        flavor: "not a bot",
+        kind: "skill",
+      });
+    }
+    expect(accountUsed(save.caught, 0)).toBe(0);
+    const next = addNameStubs(save, ["Alpha"]);
+    expect(next.caught.some((c) => c.name === "Alpha" && c.origin === "stub")).toBe(true);
   });
 });

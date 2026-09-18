@@ -108,7 +108,8 @@ export function addNameStubs(save: SaveFile, names: string[], declaredTotal?: nu
   for (const name of unique) {
     if (findByName(next.caught, name)) continue;
     const stub = makeStub(name);
-    const used = next.caught.length + (next.declaredExisting ?? 0);
+    // Cap tracks grok-bots + declared unnamed, not every specimen (skills/clocks).
+    const used = accountUsed(next.caught, next.declaredExisting ?? 0);
     if (used >= CAP_MAX && (next.declaredExisting ?? 0) <= 0) break;
     next.caught.push(stub);
     if (!next.boxedIds.includes(stub.id)) next.boxedIds.push(stub.id);
