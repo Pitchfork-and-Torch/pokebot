@@ -6,7 +6,7 @@ import { addNameStubs } from "../lib/ingest";
 import { ingestRows } from "../lib/ingest";
 import { identifyDump } from "../lib/rosterDump";
 import { blankSave } from "../lib/storage";
-import { allowIdentifyHost, classifyPublicTemplate, extractShareUrl } from "../lib/wildLink";
+import { allowIdentifyHost, classifyPublicTemplate, extractShareUrl, identifyRequestUrl } from "../lib/wildLink";
 
 const COSTUME_HTML = `<!doctype html><html><head><title>Basedpepe</title>
 <meta property="og:title" content="Basedpepe" />
@@ -63,5 +63,20 @@ describe("attention vs account cap", () => {
 describe("kind detect", () => {
   it("reads kind: clock", () => {
     expect(detectKind("kind: clock\nMonday gym")).toBe("clock");
+  });
+});
+
+describe("identify request body", () => {
+  it("rejects null, arrays, and primitives instead of reading .url", () => {
+    expect(identifyRequestUrl(null)).toBeNull();
+    expect(identifyRequestUrl([{"url": "https://x.ai/bot/a"}])).toBeNull();
+    expect(identifyRequestUrl("https://x.ai/bot/a")).toBeNull();
+    expect(identifyRequestUrl(42)).toBeNull();
+  });
+
+  it("reads a trimmed string url from an object body", () => {
+    expect(identifyRequestUrl({ url: "  https://x.ai/bot/abc  " })).toBe("https://x.ai/bot/abc");
+    expect(identifyRequestUrl({ url: "" })).toBeNull();
+    expect(identifyRequestUrl({ url: 1 })).toBeNull();
   });
 });

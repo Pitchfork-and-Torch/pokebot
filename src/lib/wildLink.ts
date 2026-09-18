@@ -56,3 +56,12 @@ export function allowIdentifyHost(url: string): boolean {
     return false;
   }
 }
+
+/** Body for POST /api/identify. Null / arrays / primitives are not objects with .url. */
+export function identifyRequestUrl(body: unknown): string | null {
+  if (body == null || typeof body !== "object" || Array.isArray(body)) return null;
+  const raw = (body as { url?: unknown }).url;
+  if (typeof raw !== "string") return null;
+  const url = raw.trim();
+  return url || null;
+}
