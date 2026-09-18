@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+Sitemap: https://pokebot.jonbailey.xyz/sitemap.xml

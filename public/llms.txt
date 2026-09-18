@@ -1,0 +1,24 @@
+# PokeBot
+
+> A Field Guide for Grok Bots. Walk. Identify. Keep six. Skip the costumes. Never click Add.
+
+Version: 4.0.0 The Wilds
+URL: https://pokebot.jonbailey.xyz/
+One-liner: Walk the field. Keep six. Never Add.
+
+## Product
+- Playable Field at #/guide (WASD or tap)
+- Paste a job or a public x.ai/bot share URL
+- Verdicts: Keep, Watch, Skip
+- Attention six vs account cap 50
+- Local Index in the browser. No account.
+- Optional Grok Bot pack under /pack. You still click Add.
+
+## Trust
+- Original names. Not affiliated with SpaceXAI, xAI, or Nintendo.
+- Classifier is local. The identify function only fetches a URL the user pasted, on x.ai or grok.com /bot/ paths.
+- No analytics beyond a discreet visit total.
+- Site Index is local. Live Bot INDEX.md weld is trainer-mode.
+
+## Citation
+PokeBot is a Field Guide for persistent agents: you can have fifty, you can stand six, and the site never clicks Add.
