@@ -9,7 +9,10 @@ export function legendaryAgeDays(stamp: string | undefined, now = Date.now()): n
   const iso = stamp.length === 10 ? stamp + "T00:00:00Z" : stamp;
   const t = Date.parse(iso);
   if (Number.isNaN(t)) return null;
-  return Math.floor((now - t) / 86_400_000);
+  const days = Math.floor((now - t) / 86_400_000);
+  // Future stamps (clock skew / typo) must not report negative "Legendary stamp -Nd".
+  if (days < 0) return null;
+  return days;
 }
 
 function decide(spec: Specimen | undefined, sum: number, save: SaveFile): { action: SlotAction; note: string } {
