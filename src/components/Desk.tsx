@@ -48,7 +48,7 @@ export function Desk({ children }: { children: ReactNode }) {
         ))}
       </nav>
       <div className={split ? "desk-split" : play ? "desk-play" : "desk-page"}>
-        <main className="desk-main" id="desk-main">
+        <main className="desk-main" id="screen" tabIndex={-1}>
           {children}
         </main>
         {split ? <SixRail /> : null}

@@ -109,80 +109,82 @@ function HousingShell({ children }: { children: ReactNode }) {
       </div>
       {fable && <FableWest />}
       <div className="housing">
-        <div className="brand-lock">
+        <header className="brand-lock">
           Field Guide System
           <strong>POKEBOT</strong>
           {PRODUCT.version} handheld
-        </div>
+        </header>
         <div className="bezel">
-          <div className="screen" id="screen">
-            <div className="screen-hud">
-              <div className="top-row">
-                <div>
-                  {PRODUCT.name} {PRODUCT.version}
+          <div className="screen">
+            <main className="screen-main" id="screen" tabIndex={-1}>
+              <div className="screen-hud">
+                <div className="top-row">
+                  <div>
+                    {PRODUCT.name} {PRODUCT.version}
+                  </div>
+                  <button
+                    type="button"
+                    className={`mute${hot("tape")}`}
+                    {...tip("tape")}
+                    onClick={() => {
+                      const next = !save.mute;
+                      if (!next) armAudio();
+                      play("click", next);
+                      setMute(next);
+                    }}
+                    aria-pressed={save.mute}
+                  >
+                    {save.mute ? "Tape off" : "Tape on"}
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  className={`mute${hot("tape")}`}
-                  {...tip("tape")}
-                  onClick={() => {
-                    const next = !save.mute;
-                    if (!next) armAudio();
-                    play("click", next);
-                    setMute(next);
-                  }}
-                  aria-pressed={save.mute}
+                <StatBar />
+                <div
+                  className={`cap-meter ${stats.capLevel}${hot("cap")}`}
+                  role="meter"
+                  tabIndex={0}
+                  aria-label="Account cap"
+                  aria-valuemin={0}
+                  aria-valuemax={50}
+                  aria-valuenow={stats.cap}
+                  aria-valuetext={`bots ${stats.cap} of 50, attention ${stats.attention} of 6`}
+                  {...tip("cap")}
                 >
-                  {save.mute ? "Tape off" : "Tape on"}
-                </button>
-              </div>
-              <StatBar />
-              <div
-                className={`cap-meter ${stats.capLevel}${hot("cap")}`}
-                role="meter"
-                tabIndex={0}
-                aria-label="Account cap"
-                aria-valuemin={0}
-                aria-valuemax={50}
-                aria-valuenow={stats.cap}
-                aria-valuetext={`bots ${stats.cap} of 50, attention ${stats.attention} of 6`}
-                {...tip("cap")}
-              >
-                <span style={{ width: `${capPct}%` }} />
-              </div>
-              <div className="mode-row">
-                <button
-                  type="button"
-                  className={`ghost mode-btn${hot("left")}`}
-                  onClick={() => cycle(-1)}
-                  aria-label="Previous mode"
-                  {...tip("left")}
-                >
-                  LEFT
-                </button>
-                <div className="mode-name">
-                  <span className="dim">
-                    {idx + 1}/{NAV.length}
-                  </span>
-                  <strong>{mode?.title}</strong>
+                  <span style={{ width: `${capPct}%` }} />
                 </div>
-                <button
-                  type="button"
-                  className={`ghost mode-btn${hot("right")}`}
-                  onClick={() => cycle(1)}
-                  aria-label="Next mode"
-                  {...tip("right")}
-                >
-                  RIGHT
-                </button>
+                <div className="mode-row">
+                  <button
+                    type="button"
+                    className={`ghost mode-btn${hot("left")}`}
+                    onClick={() => cycle(-1)}
+                    aria-label="Previous mode"
+                    {...tip("left")}
+                  >
+                    LEFT
+                  </button>
+                  <div className="mode-name">
+                    <span className="dim">
+                      {idx + 1}/{NAV.length}
+                    </span>
+                    <strong>{mode?.title}</strong>
+                  </div>
+                  <button
+                    type="button"
+                    className={`ghost mode-btn${hot("right")}`}
+                    onClick={() => cycle(1)}
+                    aria-label="Next mode"
+                    {...tip("right")}
+                  >
+                    RIGHT
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="screen-body" id="screen-body" ref={bodyRef} tabIndex={0} onKeyDown={swallow}>
-              <div className="screen-pane" key={loc.pathname}>
-                {children}
+              <div className="screen-body" id="screen-body" ref={bodyRef} tabIndex={0} onKeyDown={swallow}>
+                <div className="screen-pane" key={loc.pathname}>
+                  {children}
+                </div>
               </div>
-            </div>
-            <p className="screen-status">{FOOTER}</p>
+            </main>
+            <footer className="screen-status">{FOOTER}</footer>
           </div>
         </div>
         <div className="controls">
@@ -229,7 +231,7 @@ function HousingShell({ children }: { children: ReactNode }) {
             </button>
             <span />
           </div>
-          <div className="type-pads">
+          <nav className="type-pads" aria-label="Shortcuts">
             <NavLink to="/" end className={({ isActive }) => `${isActive ? "active" : ""}${hot("enc")}`} {...tip("enc")}>
               Enc
             </NavLink>
@@ -239,7 +241,7 @@ function HousingShell({ children }: { children: ReactNode }) {
             <NavLink to="/six" className={({ isActive }) => `${isActive ? "active" : ""}${hot("team")}`} {...tip("team")}>
               Six
             </NavLink>
-          </div>
+          </nav>
           <div className="ab">
             <button
               type="button"
